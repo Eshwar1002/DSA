@@ -1,0 +1,4 @@
+Two zero indexed arrays --> servers and tasks 
+
+servers --> len is n | server[i] is the weight of the i th server 
+tasks --> len is m | task[j] is j th task in seconds 
