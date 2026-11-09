@@ -1,0 +1,33 @@
+import heapq
+from typing import List
+
+class Solution:
+    def busiestServers(self, k: int, arrival: List[int], load: List[int]) -> List[int]:
+        # free: min-heap of "virtual" indices j (j % k = server id).
+        # The smallest j >= i is the first free server at or after i % k, cyclically.
+        free = list(range(k))
+        heapq.heapify(free)
+        busy = []  # (end_time, server)
+        cnt = [0] * k
+
+        for i, (a, l) in enumerate(zip(arrival, load)):
+            # Release servers that have finished by time a
+            while busy and busy[0][0] <= a:
+                _, s = heapq.heappop(busy)
+                heapq.heappush(free, i + ((s - i) % k))
+
+            # Lift stale virtual indices (< i) to their next occurrence >= i
+            while free and free[0] < i:
+                j = heapq.heappop(free)
+                heapq.heappush(free, j + ((i - j + k - 1) // k) * k)
+
+            if not free:
+                continue  # all servers busy, drop request
+
+            j = heapq.heappop(free)
+            s = j % k
+            cnt[s] += 1
+            heapq.heappush(busy, (a + l, s))
+
+        mx = max(cnt)
+        return [s for s in range(k) if cnt[s] == mx]
